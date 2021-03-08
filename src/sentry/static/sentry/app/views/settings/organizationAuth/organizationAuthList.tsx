@@ -1,12 +1,11 @@
 import React from 'react';
 
+import {getCsrfToken} from 'app/api';
 import ExternalLink from 'app/components/links/externalLink';
 import {Panel, PanelAlert, PanelBody, PanelHeader} from 'app/components/panels';
-import {CSRF_COOKIE_NAME} from 'app/constants';
 import {t, tct} from 'app/locale';
 import {AuthProvider, Organization} from 'app/types';
 import {descopeFeatureName} from 'app/utils';
-import getCookie from 'app/utils/getCookie';
 import withOrganization from 'app/utils/withOrganization';
 import EmptyMessage from 'app/views/settings/components/emptyMessage';
 import SettingsPageHeader from 'app/views/settings/components/settingsPageHeader';
@@ -95,7 +94,7 @@ const OrganizationAuthList = ({organization, providerList, activeProvider}: Prop
             <input
               type="hidden"
               name="csrfmiddlewaretoken"
-              value={getCookie(CSRF_COOKIE_NAME) || ''}
+              value={getCsrfToken() ?? ''}
             />
             <input type="hidden" name="init" value="1" />
 

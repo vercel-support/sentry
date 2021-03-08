@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 import isUndefined from 'lodash/isUndefined';
 
 import {openSudo, redirectToProject} from 'app/actionCreators/modal';
-import {CSRF_COOKIE_NAME, EXPERIMENTAL_SPA} from 'app/constants';
+import {EXPERIMENTAL_SPA} from 'app/constants';
 import {
   PROJECT_MOVED,
   SUDO_REQUIRED,
@@ -138,6 +138,10 @@ function buildRequestUrl(baseUrl: string, path: string, query: RequestOptions['q
   }
 
   return fullUrl;
+}
+
+export function getCsrfToken() {
+  return getCookie(window.csrfCookieName ?? 'sc');
 }
 
 /**
@@ -422,7 +426,7 @@ export class Client {
     const isSameOrigin = window.location.origin === absoluteUrl.origin;
 
     if (!csrfSafeMethod(method) && isSameOrigin) {
-      headers.set('X-CSRFToken', getCookie(CSRF_COOKIE_NAME) ?? '');
+      headers.set('X-CSRFToken', getCsrfToken() ?? '');
     }
 
     const fetchRequest = fetch(fullUrl, {
