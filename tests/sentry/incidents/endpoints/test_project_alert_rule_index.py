@@ -396,7 +396,6 @@ class ProjectCombinedRuleIndexEndpointTest(BaseAlertRuleSerializerTest, APITestC
         self.assert_alert_rule_serialized(self.two_alert_rule, result[0], skip_dates=True)
         self.assert_alert_rule_serialized(self.yet_another_alert_rule, result[1], skip_dates=True)
 
-
     def test_team_filter(self):
         self.setup_project_and_rules()
         with self.feature(["organizations:incidents", "organizations:performance-view"]):
@@ -409,6 +408,6 @@ class ProjectCombinedRuleIndexEndpointTest(BaseAlertRuleSerializerTest, APITestC
         result = json.loads(response.content)
         assert len(result) == 4
         assert True is False
-    
+
     def team_name_filter(self):
         assert True is False
