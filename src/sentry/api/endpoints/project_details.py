@@ -35,7 +35,7 @@ from sentry.models import (
 from sentry.grouping.enhancer import Enhancements, InvalidEnhancerConfig
 from sentry.grouping.fingerprinting import FingerprintingRules, InvalidFingerprintingConfig
 from sentry.models.integration import ExternalProviders
-from sentry.models.notificationsetting import (
+from sentry.notifications.types import (
     NotificationSettingTypes,
     NotificationSettingOptionValues,
 )

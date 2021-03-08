@@ -18,8 +18,14 @@ from sentry.models import (
     GroupSnooze,
     GroupStatus,
     GroupSubscription,
+    NotificationSetting,
     UserOption,
     UserOptionValue,
+)
+from sentry.models.integration import ExternalProviders
+from sentry.notifications.types import (
+    NotificationSettingTypes,
+    NotificationSettingOptionValues,
 )
 from sentry.testutils import APITestCase, SnubaTestCase
 from sentry.testutils.helpers.datetime import iso_format, before_now
@@ -210,12 +216,19 @@ class GroupSerializerSnubaTest(APITestCase, SnubaTestCase):
 
         def maybe_set_value(project, value):
             if value is not None:
-                UserOption.objects.set_value(
-                    user=user, project=project, key="workflow:notifications", value=value
+                NotificationSetting.objects.update_settings(
+                    ExternalProviders.EMAIL,
+                    NotificationSettingTypes.WORKFLOW,
+                    value,
+                    user=user,
+                    project=project,
                 )
             else:
-                UserOption.objects.unset_value(
-                    user=user, project=project, key="workflow:notifications"
+                NotificationSetting.objects.remove_settings(
+                    ExternalProviders.EMAIL,
+                    NotificationSettingTypes.WORKFLOW,
+                    user=user,
+                    project=project,
                 )
 
         for options, (is_subscribed, subscription_details) in combinations:
@@ -235,11 +248,11 @@ class GroupSerializerSnubaTest(APITestCase, SnubaTestCase):
             user=user, group=group, project=group.project, is_active=True
         )
 
-        UserOption.objects.set_value(
+        NotificationSetting.objects.update_settings(
+            ExternalProviders.EMAIL,
+            NotificationSettingTypes.WORKFLOW,
+            NotificationSettingOptionValues.NEVER,
             user=user,
-            project=None,
-            key="workflow:notifications",
-            value=UserOptionValue.no_conversations,
         )
 
         result = serialize(group, user, serializer=GroupSerializerSnuba())
@@ -254,11 +267,12 @@ class GroupSerializerSnubaTest(APITestCase, SnubaTestCase):
             user=user, group=group, project=group.project, is_active=True
         )
 
-        UserOption.objects.set_value(
+        NotificationSetting.objects.update_settings(
+            ExternalProviders.EMAIL,
+            NotificationSettingTypes.WORKFLOW,
+            NotificationSettingOptionValues.NEVER,
             user=user,
             project=group.project,
-            key="workflow:notifications",
-            value=UserOptionValue.no_conversations,
         )
 
         result = serialize(group, user, serializer=GroupSerializerSnuba())

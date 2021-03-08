@@ -24,7 +24,7 @@ from sentry.db.models import (
 )
 from sentry.db.models.utils import slugify_instance
 from sentry.models.integration import ExternalProviders
-from sentry.models.notificationsetting import NotificationSettingTypes
+from sentry.notifications.types import NotificationSettingTypes
 from sentry.utils.integrationdocs import integration_doc_exists
 from sentry.utils.colors import get_hashed_color
 from sentry.utils.http import absolute_uri
