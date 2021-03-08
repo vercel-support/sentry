@@ -23,6 +23,8 @@ from sentry.db.models import (
     sane_repr,
 )
 from sentry.db.models.utils import slugify_instance
+from sentry.models.integration import ExternalProviders
+from sentry.models.notificationsetting import NotificationSettingTypes
 from sentry.utils.integrationdocs import integration_doc_exists
 from sentry.utils.colors import get_hashed_color
 from sentry.utils.http import absolute_uri
@@ -279,27 +281,35 @@ class Project(Model, PendingDeletionMixin):
         return list(User.objects.filter(id__in=user_ids))
 
     def is_user_subscribed_to_mail_alerts(self, user):
-        from sentry.models import UserOption
+        """
+        Check the user's "Issue Alert" Notification Settings, if they are
+        "default", then check if they have opted to subscribe by default.
+        :param user: User
+        :return: boolean
+        """
+        from sentry.models import NotificationSetting, UserOption
 
-        is_enabled = UserOption.objects.get_value(user, "mail:alert", project=self)
-        if is_enabled is None:
-            is_enabled = UserOption.objects.get_value(user, "subscribe_by_default", "1") == "1"
-        else:
-            is_enabled = bool(is_enabled)
-        return is_enabled
+        value = NotificationSetting.objects.get_settings(
+            ExternalProviders.EMAIL,
+            NotificationSettingTypes.ISSUE_ALERTS,
+            user=user,
+            project=self,
+        )
+        if value is None:
+            return UserOption.objects.get_value(user, "subscribe_by_default", "1") == "1"
+
+        return bool(value)
 
     def filter_to_subscribed_users(self, users):
         """
         Filters a list of users down to the users who are subscribed to email alerts. We
         check both the project level settings and global default settings.
         """
-        from sentry.models import UserOption
+        from sentry.models import NotificationSetting, UserOption
 
-        project_options = UserOption.objects.filter(
-            user__in=users, project=self, key="mail:alert"
-        ).values_list("user_id", "value")
-
-        user_settings = {user_id: value for user_id, value in project_options}
+        user_settings = NotificationSetting.objects.get_settings_for_users(
+            ExternalProviders.EMAIL, NotificationSettingTypes.ISSUE_ALERTS, users, self
+        )
         users_without_project_setting = [user for user in users if user.id not in user_settings]
         if users_without_project_setting:
             user_default_settings = {
