@@ -61,7 +61,7 @@ const withOrgStats = <P extends InjectedStatsProps>(
             query: {
               start: fourWeeksAgo,
               end: today,
-              rollup: '1d',
+              interval: '1d',
             },
           }
         );

@@ -44,10 +44,6 @@ class OrganizationStats extends React.Component<Props, State> {
     dataCategory: DataCategory.ERRORS,
   };
 
-  componentDidUpdate() {
-    this.mapStatsToChart();
-  }
-
   setSelectedDataCategory = (dataCategory: DataCategory) => {
     this.setState({dataCategory});
   };
@@ -80,7 +76,7 @@ class OrganizationStats extends React.Component<Props, State> {
     return stats.reduce(
       (acc, m) => {
         acc.statsForChart.push({
-          date: moment(m.ts).format('MMM D'),
+          date: moment.unix((m as any).time).format('MMM D'),
           total: m.accepted.times_seen + m.filtered.times_seen, // TODO
           accepted: m.accepted.times_seen,
           filtered: m.filtered.times_seen,
